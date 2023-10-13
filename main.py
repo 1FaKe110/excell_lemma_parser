@@ -1,8 +1,11 @@
 from application import Application
+import easygui
 
 
 def main():
-    app = Application()
+    filepath = easygui.fileopenbox(default="*.xlsx")
+
+    app = Application(filepath)
     app.run()
 
 
