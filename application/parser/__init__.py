@@ -5,19 +5,13 @@ from loguru import logger
 
 from langdetect import detect, DetectorFactory
 from munch import DefaultMunch
+from application.parser.nlps import Nlps
 
 as_class = DefaultMunch.fromDict
 DetectorFactory.seed = 0
 
-from application.parser.nlps import Nlps
-
 
 class Phrase:
-    exact = 0
-    exact_lemmed = 0
-    participant = 0
-    imprecise = 0
-    matches = []
 
     def __init__(self, text):
         self.text: str = text
@@ -26,12 +20,24 @@ class Phrase:
         self.__nlp = Nlps().__getattribute__(self.__lang)
         self.lemma: str = " ".join([token.lemma_ for token in self.__nlp(text)]).lower()
 
+        self.exact = []
+        self.exact_lemmed = []
+        self.participant = []
+        self.imprecise = []
+
     def __repr__(self):
         return f"Phrase:{self.__lang}:{len(self.text.split())}"
 
     def values(self):
-        reply = self.matches
-        self.matches = []
+        reply = {'exact': str(self.exact)[1:-1],
+                 'exact_lemmed': str(self.exact_lemmed)[1:-1],
+                 'participant': str(self.participant)[1:-1],
+                 'imprecise': str(self.imprecise)[1:-1]}
+
+        self.exact.clear()
+        self.exact_lemmed.clear()
+        self.participant.clear()
+        self.imprecise.clear()
 
         return reply
 
@@ -40,7 +46,8 @@ class Text:
     def __init__(self, text: str):
         self.lang = detect(text)
         self.text = text.replace('\n', '.')
-        self.sentences = [Sentence(s_id, x, self.lang) for s_id, x in enumerate(re.split(r'(?<=[.!?])\s+', text))]
+        self.sentences = [Sentence(s_id, x, self.lang) for s_id, x
+                          in enumerate(re.split(r'(?<=[.!?])\s+', text), start=1)]
 
     def __repr__(self):
         return f"Text:{self.lang}:{len(self.sentences)}"
@@ -49,7 +56,7 @@ class Text:
 class Sentence:
 
     def __init__(self, sent_id, text, lang):
-        self.sentence_id = sent_id
+        self.id_ = sent_id
         self.lang = lang
         self.text: str = text
         self.__nlp = Nlps().__getattribute__(lang)
@@ -84,8 +91,7 @@ class Sentence:
         logger.debug(f'Лемма: {self.lemmatized}')
 
         return as_class(dict(phrase=phrase.text,
-                             sentence_id=self.sentence_id,
-                             sentence=self.text,
+                             id_=self.id_,
                              count=len(matches)))
 
     def __match_exactlemmed(self, phrase: Phrase) -> DefaultMunch:
@@ -97,8 +103,7 @@ class Sentence:
         self.lemmatized = re.sub(r'\b' + re.escape(phrase.lemma) + r'\b', '', sentence)
         logger.debug(f'Лемма: {self.lemmatized}')
         return as_class(dict(phrase=phrase.text,
-                             sentence_id=self.sentence_id,
-                             sentence=self.text,
+                             id_=self.id_,
                              count=len(matches)))
 
     def __match_participant(self, phrase: Phrase) -> DefaultMunch:
@@ -120,7 +125,6 @@ class Sentence:
         self.lemmatized = re.sub(r'\b' + re.escape(phrase.lemma) + r'\b', '', sentence)
         logger.debug(f'Лемма: {self.lemmatized}')
         return as_class(dict(phrase=phrase.text,
-                             sentence_id=self.sentence_id,
-                             sentence=self.text,
-                             count=len(matches)))
+                             id_=self.id_,
 
+                             count=len(matches)))

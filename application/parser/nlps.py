@@ -13,9 +13,9 @@ import spacy
 
 
 class Nlps:
-    # os.system("python -m spacy download ru_core_news_sm")
     ru = spacy.load("ru_core_news_sm")
-
-    # os.system("python -m spacy download en_core_web_sm")
     en = spacy.load("en_core_web_sm")
+
+    # os.system("python -m spacy download ru_core_news_sm")
+    # os.system("python -m spacy download en_core_web_sm")
 

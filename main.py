@@ -4,8 +4,9 @@ import easygui
 
 def main():
     filepath = easygui.fileopenbox(default="*.xlsx")
+    save_filepath = easygui.diropenbox(msg="Папка куда сохранить результаты")
 
-    app = Application(filepath)
+    app = Application(filepath, save_filepath)
     app.run()
 
 
