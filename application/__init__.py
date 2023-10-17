@@ -41,3 +41,4 @@ class Application:
                 )
                 sentences_df = pd.DataFrame().from_dict(sentences)
                 sentences_df.to_excel(writer, sheet_name='Пассажи', index=False)
+
