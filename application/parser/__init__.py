@@ -80,15 +80,15 @@ class Sentence:
         ))
 
     def __match_exact(self, phrase: Phrase) -> DefaultMunch:
-        logger.debug(f"Phrase: {phrase.text}")
+        logger.trace(f"Phrase: {phrase.text}")
 
         sentence = self.clear_full_sentence()
         matches = re.findall(phrase.text, sentence)
 
         modified_sentence = re.sub(r'\b' + re.escape(phrase.text) + r'\b', '', sentence)
         self.lemmatized = self.lemmatize(modified_sentence)
-        logger.debug(f'Исходный: {sentence}')
-        logger.debug(f'Лемма: {self.lemmatized}')
+        logger.trace(f'Исходный: {sentence}')
+        logger.trace(f'Лемма: {self.lemmatized}')
 
         return as_class(dict(phrase=phrase.text,
                              id_=self.id_,
@@ -97,18 +97,18 @@ class Sentence:
     def __match_exactlemmed(self, phrase: Phrase) -> DefaultMunch:
         sentence = self.lemmatized
 
-        logger.debug(f"Phrase: {phrase.lemma}")
+        logger.trace(f"Phrase: {phrase.lemma}")
 
         matches = re.findall(r'\b' + re.escape(phrase.lemma) + r'\b', sentence)
         self.lemmatized = re.sub(r'\b' + re.escape(phrase.lemma) + r'\b', '', sentence)
-        logger.debug(f'Лемма: {self.lemmatized}')
+        logger.trace(f'Лемма: {self.lemmatized}')
         return as_class(dict(phrase=phrase.text,
                              id_=self.id_,
                              count=len(matches)))
 
     def __match_participant(self, phrase: Phrase) -> DefaultMunch:
         sentence = self.lemmatized
-        logger.debug(f"Phrase: {phrase.lemma}")
+        logger.trace(f"Phrase: {phrase.lemma}")
         str_pattern = r'\b' + r'\b.*?\b'.join(map(re.escape, phrase.lemma.split())) + r'\b'
         return self.__re_search_lemmed(phrase, sentence, str_pattern)
 
@@ -123,7 +123,7 @@ class Sentence:
         pattern = re.compile(str_pattern)
         matches = re.findall(pattern, sentence)
         self.lemmatized = re.sub(r'\b' + re.escape(phrase.lemma) + r'\b', '', sentence)
-        logger.debug(f'Лемма: {self.lemmatized}')
+        logger.trace(f'Лемма: {self.lemmatized}')
         return as_class(dict(phrase=phrase.text,
                              id_=self.id_,
 
